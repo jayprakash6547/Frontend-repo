@@ -8,11 +8,13 @@ import {
 } from "react-router-dom";
 import Navbar from './Components/Navbar';
 import BookaStrategyCall from './Components/BookaStrategyCall';
+import RecentOrders from './Components/RecentOrders';
 function App() {
   return(
  <>
- <BookaStrategyCall/>
+ {/* <BookaStrategyCall/> */}
  <Navbar/>
+ {/* <RecentOrders/> */}
  </>
   )
 }
