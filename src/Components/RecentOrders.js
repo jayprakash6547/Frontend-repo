@@ -1,37 +1,55 @@
-// RecentOrders.js
 import React, { useState, useEffect } from 'react';
-import axios from 'axios'; // You may need to install axios using `npm install axios`
+import { List, Card, Typography, Button,Avatar } from 'antd'; // Or your preferred library
 
+import OrderItem from './OrderItem';
 const RecentOrders = () => {
-  const [recentOrders, setRecentOrders] = useState([]);
+  const [orders, setOrders] = useState([]);
+  const [loading, setLoading] = useState(false);
 
   useEffect(() => {
-    // Fetch recent orders data from your backend API
-    const fetchRecentOrders = async () => {
-      try {
-        const response = await axios.get('your-backend-api-endpoint/recent-orders');
-        setRecentOrders(response.data);
-      } catch (error) {
-        console.error('Error fetching recent orders:', error);
-      }
-    };
-
-    fetchRecentOrders();
+    // Fetch recent orders data
+    setLoading(true);
+    fetch('/api/recent-orders') // Replace with your API endpoint or data source
+      .then(response => response.json())
+      .then(data => {
+        setOrders(data);
+        setLoading(false);
+      })
+      .catch(error => {
+        console.error('Error fetching orders:', error);
+        setLoading(false);
+      });
   }, []);
 
   return (
     <div>
-      <h2>Recent Orders</h2>
-      {recentOrders.length === 0 ? (
-        <p>No recent orders available.</p>
+      <h1>Recent Orders</h1>
+      {loading ? (
+        <p>Loading orders...</p>
       ) : (
-        <ul>
-          {recentOrders.map((order) => (
-            <li key={order.id}>
-              Order ID: {order.id}, Total: ${order.total}, Date: {order.date}
-            </li>
-          ))}
-        </ul>
+        <List
+          itemLayout="horizontal"
+          dataSource={orders}
+          renderItem={order => (
+            <List.Item>
+              <List.Item.Meta
+                avatar={<Avatar src={order.productImage} />}
+                title={order.productName}
+                description={
+                  <p>
+                    Date: {order.date} | Amount: ₹{order.amount}
+                  </p>
+                }
+              />
+              <OrderItem order={order} />
+              {order.status !== 'completed' && (
+                <Button type="primary" disabled={order.status === 'processing'}>
+                  {order.status === 'placed' ? 'Process' : 'View Details'}
+                </Button>
+              )}
+            </List.Item>
+          )}
+        />
       )}
     </div>
   );
